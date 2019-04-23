@@ -47,7 +47,9 @@ def check_same(old_folder, new_folder):
     new_path = Path(new_folder)
 
     old_paths = list(old_path.glob('*.h5'))
+    old_paths.sort()
     new_paths = list(new_path.glob('*.h5'))
+    new_paths.sort()
 
     assert len(old_paths) == len(new_paths)
 
@@ -56,8 +58,8 @@ def check_same(old_folder, new_folder):
         with h5py.File(old, mode='r') as old_hf, h5py.File(new, mode='r') as new_hf:
             assert dict(new_hf.attrs) == dict(old_hf.attrs)
 
-            for key, value in new_hf.values():
-                assert np.all(old_hf['key'] == value)
+            for key in new_hf.keys():
+                assert np.all(np.asarray(old_hf[key]) == np.asarray(new_hf[key]))
     else:
         print('All is well!')
 
@@ -68,9 +70,17 @@ if __name__ == '__main__':
     test_dir = '/media/veritas/D/fastMRI/singlecoil_test'
 
     data_root = '/media/veritas/D/fastMRI'
+    data_path_ = Path(data_root)
 
     gzip = dict(compression='gzip', compression_opts=1, shuffle=True, fletcher32=True)
 
-    make_compressed_dataset(test_dir, data_root, **gzip)  # Use compression if storing on hard drive, not SSD.
+    # Use compression if storing on hard drive, not SSD.
+    make_compressed_dataset(train_dir, data_root, **gzip)
+    make_compressed_dataset(val_dir, data_root, **gzip)
+    make_compressed_dataset(test_dir, data_root, **gzip)
+
+    check_same(train_dir, data_path_ / 'new_singlecoil_train')
+    check_same(val_dir, data_path_ / 'new_singlecoil_val')
+    check_same(test_dir, data_path_ / 'new_singlecoil_test')
 
 

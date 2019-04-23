@@ -1,3 +1,4 @@
+tensorboardX
 matplotlib
 tqdm
 torch
