@@ -27,11 +27,11 @@ class mri_dataset(Dataset):
         if self.transform:
             img = self.transform(un_k_array)
             ground_truth = self.transform(k_array)
-        elif self.transform==None:
+        elif self.transform is None:
             img = un_k_array
             ground_truth = k_array
          
-        return (img, ground_truth)
+        return img, ground_truth
 
     def __len__(self):
         return self.len

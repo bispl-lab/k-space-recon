@@ -4,8 +4,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class double_conv(nn.Module):
     '''(conv => BN => ReLU) * 2'''
+
     def __init__(self, in_ch, out_ch):
         super(double_conv, self).__init__()
         self.conv = nn.Sequential(
@@ -21,21 +23,23 @@ class double_conv(nn.Module):
         x = self.conv(x)
         return x
 
+
 class double_conv_up(nn.Module):
     def __init__(self, in_ch, out_ch):
         super(double_conv_up, self).__init__()
         self.conv = nn.Sequential(
-            nn.Conv2d(in_ch, in_ch//2, 3, padding=1),
-            nn.BatchNorm2d(in_ch//2),
+            nn.Conv2d(in_ch, in_ch // 2, 3, padding=1),
+            nn.BatchNorm2d(in_ch // 2),
             nn.ReLU(inplace=True),
-            nn.Conv2d(in_ch//2, out_ch, 3, padding=1),
+            nn.Conv2d(in_ch // 2, out_ch, 3, padding=1),
             nn.BatchNorm2d(out_ch),
             nn.ReLU(inplace=True)
         )
-    
+
     def forward(self, x):
         x = self.conv(x)
         return x
+
 
 class inconv(nn.Module):
     def __init__(self, in_ch, out_ch):
@@ -59,17 +63,19 @@ class down(nn.Module):
         x = self.mpconv(x)
         return x
 
+
 class bridge(nn.Module):
     def __init__(self, in_ch, out_ch):
         super(bridge, self).__init__()
         self.conv = nn.Sequential(
-            nn.Conv2d(in_ch, out_ch, 3, padding = 1),
+            nn.Conv2d(in_ch, out_ch, 3, padding=1),
             nn.BatchNorm2d(out_ch),
-            nn.ReLU(inplace = True))
-        
+            nn.ReLU(inplace=True))
+
     def forward(self, x):
         x = self.conv(x)
         return x
+
 
 class up(nn.Module):
     def __init__(self, in_ch, out_ch, bilinear=True):
@@ -93,7 +99,8 @@ class outconv(nn.Module):
     def forward(self, x):
         x = self.conv(x)
         return x
-      
+
+
 class UNet(nn.Module):
     def __init__(self, n_channels, out_c):
         super(UNet, self).__init__()
@@ -102,7 +109,7 @@ class UNet(nn.Module):
         self.down2 = down(128, 256)
         self.down3 = down(256, 512)
         self.down4 = down(512, 1024)
-        self.bridge = bridge(1024,512)
+        self.bridge = bridge(1024, 512)
         self.up1 = up(512, 256)
         self.up2 = up(256, 128)
         self.up3 = up(128, 64)
